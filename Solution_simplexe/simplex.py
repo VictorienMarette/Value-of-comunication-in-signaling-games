@@ -15,7 +15,7 @@ def Vertexes(ineq, lenght, epsi):
         try:
             A_inv = np.linalg.inv(A)
             x = A_inv@b
-            if in_simplex(x, ineq, epsi):
+            if in_ineq_simplex(x, ineq, epsi):
                 solutions.append((A_inv@b, c))  
         except np.linalg.LinAlgError:
             pass
@@ -23,7 +23,7 @@ def Vertexes(ineq, lenght, epsi):
     return solutions
 
 
-def in_simplex(x, ineq, epsi):
+def in_ineq_simplex(x, ineq, epsi):
     print(x)
     for i in ineq:
         print(np.dot(np.array(i[0]), x))
