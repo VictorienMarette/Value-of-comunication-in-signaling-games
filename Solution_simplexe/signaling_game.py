@@ -4,6 +4,7 @@ import itertools
 from simplex import *
 
 
+#Note: plus tard faire un classe clear punish quierite de signaling game
 class SignalingGame:
     def __init__(self, p, T, S, A, Us, Ur, P=None):
         self.p = p
@@ -97,3 +98,27 @@ class SignalingGame:
         ti, r = divmod(i, lS*lA)
         si, ai = divmod(r, lA)
         return (self.T[ti], self.S[si], self.A[ai])
+
+    def get_clear_punish_vertexes(self):
+        lT = len(self.T)
+        lS = len(self.S)
+        lA = len(self.A)
+        conditions = self.get_clear_punish_conditions()
+        return sumed_vertexes(conditions[0], conditions[1], lT*lS*lA, 0.01)
+
+    def print_clear_punish_vertexes(self):
+        vertexes = self.get_clear_punish_vertexes()
+        print("Vertex of outcome space:")
+        i = 1
+        for v in vertexes:
+            text = "Vertexe " + str(i) + ": "+str(int(v[1]))+" iter,"
+            for t in self.T:
+                for s in self.S:
+                    for a in self.A:
+                        text += " pi("+s+","+a+"|"+t+")=" + str(round(float(v[0][self.TxSxA_to_int(t, s, a)]),6))
+            print(text)
+            i += 1
+
+    def is_cp_ce(self, x):
+        cond = self.get_clear_punish_conditions()
+        return in_simplex(x, cond[0], cond[1], 0.0001)
