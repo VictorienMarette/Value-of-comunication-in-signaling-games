@@ -111,12 +111,17 @@ class SignalingGame:
         print("Vertex of outcome space:")
         i = 1
         for v in vertexes:
-            text = "Vertexe " + str(i) + ": "+str(int(v[1]))+" iter,"
+            text = "Vertexe " + str(i) + ": "+str(int(v[1]))+" iter, Us="
+            text2 = ""
+            Us = 0
+            Ur = 0
             for t in self.T:
                 for s in self.S:
                     for a in self.A:
-                        text += " pi("+s+","+a+"|"+t+")=" + str(round(float(v[0][self.TxSxA_to_int(t, s, a)]),6))
-            print(text)
+                        Us += float(v[0][self.TxSxA_to_int(t, s, a)])*self.p[self.T.index(t)]*self.Us(t, s, a)
+                        Ur += float(v[0][self.TxSxA_to_int(t, s, a)])*self.p[self.T.index(t)]*self.Ur(t, s, a)
+                        text2 += " pi("+s+","+a+"|"+t+")=" + str(round(float(v[0][self.TxSxA_to_int(t, s, a)]),6))
+            print(text+str(round(Us, 4))+", Ur="+str(round(Ur, 4))+","+text2)
             i += 1
 
     def is_cp_ce(self, x):
