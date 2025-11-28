@@ -25,13 +25,15 @@ class SignalingGame:
                         return False
         return True
 
-    def get_clear_punish_conditions(self):
+    def get_clear_punish_conditions(self, get_parameters=False):
         if not self.chek_punish():
             raise ValueError("The punish isn't clean")
-        return (self.get_cp_ineqs_prob()+self.get_cp_ineqs_sender()+self.get_cp_ineqs_recevier(),
-                self.get_cp_eqs_prob())
+        return (self.get_cp_ineqs_prob(get_parameters)
+                + self.get_cp_ineqs_sender(get_parameters)
+                + self.get_cp_ineqs_recevier(get_parameters),
+                self.get_cp_eqs_prob(get_parameters))
 
-    def get_cp_eqs_prob(self):
+    def get_cp_eqs_prob(self, get_parameters=False):
         lT = len(self.T)
         lS = len(self.S)
         lA = len(self.A)
@@ -39,10 +41,13 @@ class SignalingGame:
         for t in range(lT):
             v = np.zeros(lT*lS*lA)
             v[t*lS*lA:(t+1)*lS*lA] = 1
-            eqs.append((v, 1))
+            if get_parameters:
+                eqs.append((v, 1, self.T[t]))
+            else:
+                eqs.append((v, 1))
         return eqs
 
-    def get_cp_ineqs_prob(self):
+    def get_cp_ineqs_prob(self, get_parameters=False):
         lT = len(self.T)
         lS = len(self.S)
         lA = len(self.A)
@@ -50,10 +55,13 @@ class SignalingGame:
         for i in range(lT*lS*lA):
             v = np.zeros(lT*lS*lA)
             v[i] = -1
-            ineqs.append((v, 0))
+            if get_parameters:
+                ineqs.append((v, 0, self.int_to_TxSxA(i)))
+            else:
+                ineqs.append((v, 0))
         return ineqs
 
-    def get_cp_ineqs_sender(self):
+    def get_cp_ineqs_sender(self, get_parameters=False):
         lT = len(self.T)
         lS = len(self.S)
         lA = len(self.A)
@@ -68,10 +76,13 @@ class SignalingGame:
                     v[self.TxSxA_to_int(t2, s, a)] += self.Us(t, s, a)
                 else:
                     v[self.TxSxA_to_int(t2, s, a)] += self.Us(t, f[si], self.P(f[si])) 
-            ineqs.append((v, 0))
+            if get_parameters:
+                ineqs.append((v, 0, (t, t2, f)))
+            else:
+                ineqs.append((v, 0))
         return ineqs
 
-    def get_cp_ineqs_recevier(self):
+    def get_cp_ineqs_recevier(self, get_parameters=False):
         lT = len(self.T)
         lS = len(self.S)
         lA = len(self.A)
@@ -81,7 +92,10 @@ class SignalingGame:
             for t in self.T:
                 ti = self.T.index(t)
                 v[self.TxSxA_to_int(t, s, a)] += self.p[ti]*(self.Ur(t, s, a2)-self.Ur(t, s, a))
-            ineqs.append((v, 0))
+            if get_parameters:
+                ineqs.append((v, 0, (s, a, a2)))
+            else: 
+                ineqs.append((v, 0))
         return ineqs
 
     def TxSxA_to_int(self, t, s, a):
