@@ -1,20 +1,20 @@
 import numpy as np
 import itertools
 
-from simplex import *
+from simplex import sumed_vertexes, in_simplex
 
 
-#Note: plus tard faire un classe clear punish quierite de signaling game
+# Note: plus tard faire un classe clear punish quierite de signaling game
 class SignalingGame:
     def __init__(self, p, T, S, A, Us, Ur, P=None):
         self.p = p
-        self.T = T        
+        self.T = T
         self.S = S
         self.A = A
         self.Us = Us
         self.Ur = Ur
         self.P = P
-        
+
     def chek_punish(self):
         if self.P is None:
             return False
