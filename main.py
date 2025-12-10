@@ -1,13 +1,23 @@
 from ClearPunishSignalingGame import ClearPunishSignalingGame
 
-G = ClearPunishSignalingGame.generate_random(2, 2, 2)
-print(G)
-
-import numpy as np
-
-n = 5  # nombre d'états
-x = np.random.rand(n)      # nombres aléatoires positifs
-print(10*x)
-prob = x / x.sum()         # normalisation pour que la somme soit 1
-print(prob)
-print(prob.sum())  # vérifie que ça fait 1
+while True:
+    G = ClearPunishSignalingGame.generate_random(2, 2, 2)
+    V = G.get_ce_vertexes()
+    BN = False
+    bestBn = -15
+    bestCE = 0
+    for v in V:
+        v0 = v[0][0].flatten()
+        if G.is_bn(v0):
+            Bn = True
+            if G.E_us(v0) > bestBn:
+                bestBn = G.E_us(v0)
+        else:
+            if G.E_us(v0) > bestCE:
+                bestCE = G.E_us(v0)
+    if not BN:
+        print("BN pas vertex")
+        print(G)
+    elif bestBn < bestCE - 1e-12:
+        print("BN not best")
+        print(G)
