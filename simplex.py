@@ -1,41 +1,16 @@
-import itertools
 import numpy as np
+import cdd
 
 
-def vertexes(ineq, eq, space_dim, epsi, plan_index=False):
-    dim = space_dim - len(eq)
-    candidates = list(itertools.combinations(range(len(ineq)), dim))
-    solutions = []
-    for c in candidates:
-        A = np.vstack([ineq[i][0] for i in c]+[eq[i][0] for i in range(len(eq))])
-        b = np.vstack([ineq[i][1] for i in c]+[eq[i][1] for i in range(len(eq))])
-        if is_invertible(A):
-            A_inv = np.linalg.inv(A)
-            x = A_inv@b
-            if in_ineq_simplex(x, ineq, epsi):
-                if plan_index:
-                    solutions.append((x, c))
-                else:
-                    solutions.append(x)
-    return solutions
-
-
-def sumed_vertexes(ineq, eq, space_dim, epsi, plan_index=False):
-    old_vertexes = vertexes(ineq, eq, space_dim, epsi, plan_index=plan_index)
-    new = []
-    if plan_index:
-        pass  # pas fini
-    else:
-        while old_vertexes:
-            v = old_vertexes.pop(0)
-            remove_list = []
-            for i, v2 in enumerate(old_vertexes):
-                if np.linalg.norm(v - v2) <= 0.0001:
-                    remove_list.append(i)
-            new.append((v, len(remove_list)+1))
-            for i in sorted(remove_list, reverse=True):
-                del old_vertexes[i]
-    return new
+# Convention ineq: Ax<=b, c'est des np array
+def vertexes(ineq, eq):
+    lin_set = set(list(range(len(eq))))
+    eq2 = [[b, *(-a for a in A)] for A, b in eq]
+    ineq2 = [[b, *(-a for a in A)] for A, b in ineq]
+    mat = cdd.matrix_from_array(eq2+ineq2, rep_type=cdd.RepType.INEQUALITY, lin_set=lin_set)
+    poly = cdd.polyhedron_from_matrix(mat)
+    ext = cdd.copy_generators(poly)
+    return [v[1:] for v in ext.array]
 
 
 def in_ineq_simplex(x, ineq, epsi):
@@ -52,8 +27,3 @@ def in_simplex(x, ineq, eq, epsi):
         if np.dot(np.array(e[0]), x) > e[1] + epsi or np.dot(np.array(e[0]), x) < e[1] - epsi:
             return False
     return True
-
-
-def is_invertible(A, tol=1e-12):
-    s = np.linalg.svd(A, compute_uv=False)
-    return np.min(s) > tol

@@ -25,11 +25,21 @@ class SignalingGame:
         si, ai = divmod(r, lA)
         return (self.T[ti], self.S[si], self.A[ai])
 
-    def is_ce(self, x):
+    def is_outcome_ce(self, x):
         pass
 
-    def is_bn(self, x, eps=1e-12):
-        pass
+    def is_outcome_bn_with_cheaptalk(self, x, eps=1e-12):
+        if not self.__bn_prob(x, eps=eps):
+            raise ValueError("x should be probas for each t")
+        return False
+
+    def print_outcome(self, x, end="\n"):
+        text = ""
+        for t in self.T:
+            for s in self.S:
+                for a in self.A:
+                    text += " pi("+s+","+a+"|"+t+")=" + str(round(float(x[self.TxSxA_to_int(t, s, a)]), 6))
+        print(text+" Us="+str(round(self.E_Us(x), 4))+", Ur="+str(round(self.E_Ur(x), 4)), end=end)
 
     def E_Us(self, x):
         tot = 0
@@ -91,3 +101,7 @@ class SignalingGame:
         def Ur(t, s, a):
             return Ur_vec[(t-1) * size_S * size_A + (s-1)*size_A + a-1]
         return cls(p, T, S, A, Us, Ur)
+
+    # A completer
+    def __bn_prob(self, x, eps=1e-12):
+        return True
