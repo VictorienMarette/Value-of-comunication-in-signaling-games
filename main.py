@@ -49,15 +49,17 @@ def Ur(t, s, a):
 def P(s):
     return "F"
 
+G = ClearPunishSignalingGame([0, 1], T, S, A, Us, Ur, P=P)
+G.print_deviation_punish([1, 0, 1, 0, 1, 1, 0, 1, 0])
 
-for i in range(1, 8):
+"""for i in range(1, 8):
     p = [i/8, 1-i/8]
     print("Probs: " + str(p))
     G = ClearPunishSignalingGame(p, T, S, A, Us, Ur, P=P)
     G.print_ce_outcome()
     print("")
 
-"""
+
 for i in range(1, 8):
     p = [i/8, 1-i/8]
     print("Probs: " + str(p))

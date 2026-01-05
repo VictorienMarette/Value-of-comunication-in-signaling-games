@@ -1,4 +1,5 @@
 import numpy as np
+from simplex import vertexes, in_simplex
 
 
 class SignalingGame:
@@ -29,9 +30,23 @@ class SignalingGame:
         pass
 
     def is_outcome_bn_with_cheaptalk(self, x, eps=1e-12):
-        if not self.__bn_prob(x, eps=eps):
+        if False:
             raise ValueError("x should be probas for each t")
         return False
+
+    def get_ce_vertexes_for_deviation_punish(self, nu):
+        conditions = self.__get_ce_conditions_cd_dp(nu)
+        return vertexes(conditions[0], conditions[1])
+
+    def print_ce_outcome_for_deviation_punish(self, nu):
+        vertexes = self.get_ce_vertexes_for_deviation_punish(nu)
+        print("Vertex of outcome space for ", end="")
+        self.print_deviation_punish(nu)
+        i = 1
+        for v in vertexes:
+            print("Vertexe " + str(i), end="")
+            self.print_outcome(v)
+            i += 1
 
     def print_outcome(self, x, end="\n"):
         text = ""
@@ -40,6 +55,18 @@ class SignalingGame:
                 for a in self.A:
                     text += " pi("+s+","+a+"|"+t+")=" + str(round(float(x[self.TxSxA_to_int(t, s, a)]), 6))
         print(text+" Us="+str(round(self.E_Us(x), 4))+", Ur="+str(round(self.E_Ur(x), 4)), end=end)
+
+    def print_deviation_punish(self, nu, end="\n"):
+        text = ""
+        i = 0
+        for t in self.T:
+            for s in self.S:
+                for s2 in self.S:
+                    if s != s2:
+                        for a in self.A:
+                            i += 1
+                            text += " nu("+a+"|"+t+", "+s+", "+s2+")=" + str(round(float(nu[i]), 6))
+        print(text, end=end)
 
     def E_Us(self, x):
         tot = 0
@@ -102,6 +129,5 @@ class SignalingGame:
             return Ur_vec[(t-1) * size_S * size_A + (s-1)*size_A + a-1]
         return cls(p, T, S, A, Us, Ur)
 
-    # A completer
-    def __bn_prob(self, x, eps=1e-12):
-        return True
+    def __get_ce_conditions_cd_dp(self, nu):
+        return None

@@ -23,7 +23,6 @@ class ClearPunishSignalingGame(SignalingGame):
                         return False
         return True
 
-    # Rajouter une option pr avoirr que une liste de vertex
     def get_ce_vertexes(self):
         conditions = self.__get_ce_conditions()
         return vertexes(conditions[0], conditions[1])
