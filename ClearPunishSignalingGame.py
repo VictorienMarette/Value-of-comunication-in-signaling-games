@@ -1,8 +1,7 @@
 import numpy as np
-import itertools
 
 from SignalingGame import SignalingGame
-from simplex import vertexes, in_simplex
+from simplex import in_simplex
 
 
 class ClearPunishSignalingGame(SignalingGame):
@@ -24,8 +23,17 @@ class ClearPunishSignalingGame(SignalingGame):
         return True
 
     def get_ce_vertexes(self):
-        conditions = self.__get_ce_conditions()
-        return vertexes(conditions[0], conditions[1])
+        i = 0
+        nu = np.zeros(len(self.A)*len(self.T)*len(self.S)*(len(self.S)-1))  
+        for t in self.T:
+            for s in self.S:
+                for s2 in self.S:
+                    if s != s2:
+                        for a in self.A:
+                            if a == self.P(s2):
+                                nu[i] = 1 
+                            i += 1
+        return self.get_ce_vertexes_for_deviation_punish(nu)
 
     def print_ce_outcome(self):
         vertexes = self.get_ce_vertexes()
@@ -86,74 +94,3 @@ class ClearPunishSignalingGame(SignalingGame):
             P = cls.get_clear_punish(T, S, A, Us)
             i += 1
         return cls(p, T, S, A, Us, Ur, P)
-
-    def __get_ce_conditions(self, get_parameters=False):
-        return (self.__get_ce_ineqs_prob(get_parameters)
-                + self.__get_ce_ineqs_sender(get_parameters)
-                + self.__get_ce_ineqs_recevier(get_parameters), 
-                self.__get_ce_eqs_prob(get_parameters))
-
-    def __get_ce_eqs_prob(self, get_parameters=False):
-        lT = len(self.T)
-        lS = len(self.S)
-        lA = len(self.A)
-        eqs = []
-        for t in range(lT):
-            v = np.zeros(lT*lS*lA)
-            v[t*lS*lA:(t+1)*lS*lA] = 1
-            if get_parameters:
-                eqs.append((v, 1, self.T[t]))
-            else:
-                eqs.append((v, 1))
-        return eqs
-
-    def __get_ce_ineqs_prob(self, get_parameters=False):
-        lT = len(self.T)
-        lS = len(self.S)
-        lA = len(self.A)
-        ineqs = []
-        for i in range(lT*lS*lA):
-            v = np.zeros(lT*lS*lA)
-            v[i] = -1
-            if get_parameters:
-                ineqs.append((v, 0, self.int_to_TxSxA(i)))
-            else:
-                ineqs.append((v, 0))
-        return ineqs
-
-    def __get_ce_ineqs_sender(self, get_parameters=False):
-        lT = len(self.T)
-        lS = len(self.S)
-        lA = len(self.A)
-        SS_funcs = list(itertools.product(self.S, repeat=lS))
-        ineqs = []
-        for t, t2, f in itertools.product(self.T, self.T, SS_funcs):
-            v = np.zeros(lT*lS*lA)
-            for s, a in itertools.product(self.S, self.A):
-                si = self.S.index(s)
-                v[self.TxSxA_to_int(t, s, a)] += -self.Us(t, s, a)
-                if f[si] == s:
-                    v[self.TxSxA_to_int(t2, s, a)] += self.Us(t, s, a)
-                else:
-                    v[self.TxSxA_to_int(t2, s, a)] += self.Us(t, f[si], self.P(f[si])) 
-            if get_parameters:
-                ineqs.append((v, 0, (t, t2, f)))
-            else:
-                ineqs.append((v, 0))
-        return ineqs
-
-    def __get_ce_ineqs_recevier(self, get_parameters=False):
-        lT = len(self.T)
-        lS = len(self.S)
-        lA = len(self.A)
-        ineqs = []
-        for s, a, a2 in itertools.product(self.S, self.A, self.A):
-            v = np.zeros(lT*lS*lA)
-            for t in self.T:
-                ti = self.T.index(t)
-                v[self.TxSxA_to_int(t, s, a)] += self.p[ti]*(self.Ur(t, s, a2)-self.Ur(t, s, a))
-            if get_parameters:
-                ineqs.append((v, 0, (s, a, a2)))
-            else:
-                ineqs.append((v, 0))
-        return ineqs

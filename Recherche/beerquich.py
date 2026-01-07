@@ -29,4 +29,15 @@ for i in range(1, 8):
     p = [i/8, 1-i/8]
     print("Probs: " + str(p))
     G = ClearPunishSignalingGame(p, T, S, A, Us, Ur, P=P)
-    G.print_ce_vertexes()
+    G.print_ce_outcome()
+    print("")
+
+"""
+while True:
+    G = ClearPunishSignalingGame.generate_random(2, 2, 2)
+    V = G.get_ce_vertexes()
+    for v in V:
+        arette opti
+        regarder si payoff BN 
+        regarder dim ss espace
+"""
